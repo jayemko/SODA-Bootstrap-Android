@@ -16,16 +16,20 @@ public interface ControllerServiceInterface {
   public void searchForPlaces(String searchString);
 
   /**
-   * 
+   * Async results call
    */
   public void getNearbyPlaces();
 
   /**
-   * @return
+   * Returns the current Location
+   * 
+   * @return current Location
    */
   public Location getCurrentLocation();
 
   /**
+   * Service instance
+   * 
    * @param activity
    */
   public void setActivity(Activity activity);
