@@ -1,6 +1,10 @@
 package com.jayemko.soda.android;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import com.google.android.gms.maps.SupportMapFragment;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -9,12 +13,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -103,48 +104,73 @@ public class MainActivity extends FragmentActivity implements
 	    FragmentTransaction fragmentTransaction) {
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+  /**
+   * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
+   * of the sections/tabs/pages.
+   */
+  public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public static final int FRAGMENT_COUNT = 3;
+    private List<Fragment> mFragments = new ArrayList<Fragment>();
+    private SupportMapFragment mMapFragment;
+    private FragmentManager mFM;
+    public boolean disableSwipe = false;
 
-	public SectionsPagerAdapter(FragmentManager fm) {
-	    super(fm);
-	}
-
-	@Override
-	public Fragment getItem(int position) {
-	    // getItem is called to instantiate the fragment for the given page.
-	    // Return a DummySectionFragment (defined as a static inner class
-	    // below) with the page number as its lone argument.
-	    Fragment fragment = new DummySectionFragment();
-	    Bundle args = new Bundle();
-	    args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-	    fragment.setArguments(args);
-	    return fragment;
-	}
-
-	@Override
-	public int getCount() {
-	    // Show 3 total pages.
-	    return 3;
-	}
-
-	@Override
-	public CharSequence getPageTitle(int position) {
-	    Locale l = Locale.getDefault();
-	    switch (position) {
-	    case 0:
-		return getString(R.string.title_section1).toUpperCase(l);
-	    case 1:
-		return getString(R.string.title_section2).toUpperCase(l);
-	    case 2:
-		return getString(R.string.title_section3).toUpperCase(l);
-	    }
-	    return null;
-	}
+    public SectionsPagerAdapter(FragmentManager fm) {
+      super(fm);
+      
+      mFM = fm;
+      
+      // add fragments
+      mMapFragment = SupportMapFragment.newInstance();
+      mFragments.add(new ControlFragment());
+      mFragments.add(mMapFragment);
+      mFragments.add(new ResultsFragment());
     }
+
+    @Override
+    public Fragment getItem(int position) {
+      // getItem is called to instantiate the fragment for the given page.
+      // Return a DummySectionFragment (defined as a static inner class
+      // below) with the page number as its lone argument.
+      // Fragment fragment = new DummySectionFragment();
+      // Bundle args = new Bundle();
+      // args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
+      // fragment.setArguments(args);
+      // return fragment;
+      Fragment fragment = mFragments.get(position);
+      // we want to disable swiping on the map fragment
+      if (fragment instanceof Fragment)
+        disableSwipe = true;
+      else
+        disableSwipe = false;
+      return fragment;
+    }
+
+    @Override
+    public int getCount() {
+      return FRAGMENT_COUNT;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+      Locale l = Locale.getDefault();
+      switch (position) {
+      case 0:
+        return getString(R.string.title_section1).toUpperCase(l);
+      case 1:
+        return getString(R.string.title_section2).toUpperCase(l);
+      case 2:
+        return getString(R.string.title_section3).toUpperCase(l);
+      }
+      return null;
+    }
+
+    public Fragment getActiveFragment(ViewPager container, int pos) {
+      String name = "android:switcher:" + container.getId() + ":" + pos;
+      return mFM.findFragmentByTag(name);
+    }
+
+  }
 
     /**
      * A dummy fragment representing a section of the app, but that simply
